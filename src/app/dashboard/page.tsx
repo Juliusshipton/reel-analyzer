@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
+import { VideoDescriber } from "@/components/dashboard/VideoDescriber";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -22,9 +23,10 @@ export default async function DashboardPage() {
     <div className="flex flex-1 flex-col bg-zinc-50 dark:bg-black">
       <DashboardHeader email={user.email} />
       <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-10">
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+        <h1 className="mb-6 text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
           Dashboard
         </h1>
+        <VideoDescriber />
       </main>
     </div>
   );

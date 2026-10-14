@@ -40,6 +40,11 @@ export async function updateSession(request: NextRequest) {
   const isAuthenticated = Boolean(data?.claims);
   const { pathname } = request.nextUrl;
 
+  // API routes authenticate themselves and return 401 rather than redirecting.
+  if (pathname.startsWith("/api/")) {
+    return response;
+  }
+
   if (!isAuthenticated && pathname !== SIGN_IN_ROUTE) {
     return redirectWithCookies(request, response, SIGN_IN_ROUTE);
   }
