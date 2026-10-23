@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import type { Video, YouTubeResponse } from "types/video";
+import type { Video, YouTubeResponse } from "@/types/video";
 // import { saveVideo } from "lib/saveVideo";
 
 const apiKey = process.env.YOUTUBE_API_KEY;

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { Video } from "types/video";
+import type { Video } from "@/types/video";
 
 type VideoCardProps = {
   video: Video;
