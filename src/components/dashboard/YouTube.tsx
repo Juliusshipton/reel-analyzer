@@ -5,7 +5,7 @@ import { useState } from "react";
 import VideoCard from "@/components/dashboard/VideoCard";
 import type { Video } from "@/types/video";
 
-export function YouTubeResearch() {
+export function YouTubeSearch() {
   const [search, setSearch] = useState("");
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(false);

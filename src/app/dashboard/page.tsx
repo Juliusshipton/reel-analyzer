@@ -3,10 +3,11 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { VideoDescriber } from "@/components/dashboard/VideoDescriber";
-import { YouTubeResearch } from "@/components/dashboard/YouTube";
+import { YouTubeSearch } from "@/components/dashboard/YouTube";
 import { ReelsTable } from "@/components/reels/ReelsTable";
 import { getReels } from "@/lib/reels/queries";
 import { createClient } from "@/lib/supabase/server";
+import { YouTubeVideoImport } from "@/components/dashboard/YouTubeVideoImport"
 
 export const metadata: Metadata = {
   title: "Dashboard · Reel Analyzer",
@@ -47,7 +48,10 @@ export default async function DashboardPage() {
         <div className="space-y-12">
 
           {/* Interactive YouTube Search */}
-          <YouTubeResearch />
+          <YouTubeSearch />
+
+          {/* Import user's video into database */}
+          <YouTubeVideoImport />
 
           {/* Saved Reels */}
           <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
