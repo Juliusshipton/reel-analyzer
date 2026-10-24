@@ -12,6 +12,8 @@ export function YouTubeSearch() {
   const [error, setError] = useState("");
   const [hasSearched, setHasSearched] = useState(false);
   const [sortBy, setSortBy] = useState("default");
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [eventType, setEventType] = useState('');
 
   async function searchYouTube() {
     if (!search.trim()) return;
@@ -111,23 +113,53 @@ export function YouTubeSearch() {
           e.preventDefault();
           searchYouTube();
         }}
-        className="mb-8 flex flex-col gap-3 sm:flex-row"
       >
-        <input
-          type="text"
-          placeholder="Search YouTube videos..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-xl border-2 border-zinc-300 bg-white px-5 py-3 text-zinc-900 outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
-        />
+        <div className="mb-8 flex flex-col gap-3 sm:flex-row">
+          <input
+            type="text"
+            placeholder="Search YouTube videos..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-xl border-2 border-zinc-300 bg-white px-5 py-3 text-zinc-900 outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+          />
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="rounded-xl bg-red-600 px-8 py-3 font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
-        >
-          {loading ? "Searching..." : "Search"}
-        </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="rounded-xl bg-red-600 px-8 py-3 font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
+          >
+            {loading ? "Searching..." : "Search"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className="rounded-xl bg-gray-100 w-45 py-3 text-sm font-semibold cursor-pointer border border-gray-300"
+          >
+            {showAdvanced ? "Hide Advanced" : "Advanced Search"}
+          </button>
+        </div>
+
+        {showAdvanced && (
+          <div className="p-4 border border-gray-200 rounded bg-gray-50 mb-2.5 flex flex-col gap-[5px]">
+            <div className="mb-2">
+              <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
+                Advanced Search
+              </h3>
+            </div>
+            <div className="flex">
+              <label className="w-1/4 p-2">
+                Event Type:
+              </label>
+              <select value={eventType} onChange={(e) => setEventType(e.target.value)} className="w-3/4 p-2 bg-white border border-gray-200 rounded">
+                <option value="">All Event Types</option>
+                <option value="completed">Completed</option>
+                <option value="live">Live</option>
+                <option value="upcoming">Upcoming</option>
+              </select>
+            </div>
+          </div>
+        )}
       </form>
 
       {/* Error */}
