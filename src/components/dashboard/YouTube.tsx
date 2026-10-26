@@ -4,6 +4,7 @@
 import { useState } from "react";
 import VideoCard from "@/components/dashboard/VideoCard";
 import type { Video } from "@/types/video";
+import { TOPIC_IDS } from "@/lib/video/topicId";
 
 export function YouTubeSearch() {
   const [search, setSearch] = useState("");
@@ -14,6 +15,7 @@ export function YouTubeSearch() {
   const [sortBy, setSortBy] = useState("default");
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [eventType, setEventType] = useState('');
+  const [topicId, setTopicId] = useState('');
 
   async function searchYouTube() {
     if (!search.trim()) return;
@@ -23,10 +25,16 @@ export function YouTubeSearch() {
     setVideos([]);
     setHasSearched(true);
 
+    let searchReq = `/api/youtube?q=${encodeURIComponent(search)}`;
+
+    if (eventType) {
+      searchReq += `&eventType=${eventType}`;
+    } if (topicId) {
+      searchReq += `&topicId=${topicId}`;
+    }
+
     try {
-      const response = await fetch(
-        `/api/youtube?q=${encodeURIComponent(search)}`
-      );
+      const response = await fetch(searchReq);
 
       const data = await response.json();
 
@@ -158,6 +166,19 @@ export function YouTubeSearch() {
                 <option value="upcoming">Upcoming</option>
               </select>
             </div>
+            <div className="flex">
+              <label className="w-1/4 p-2">
+                Topic ID:
+              </label>
+              <select value={topicId} onChange={(e) => setTopicId(e.target.value)} className="w-3/4 p-2 bg-white border border-gray-200 rounded">
+                <option value="">All Topic IDs</option>
+                {TOPIC_IDS.map((topic) => (
+                  <option key={topic.id} value={topic.id}>
+                    {topic.title}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         )}
       </form>
@@ -237,7 +258,7 @@ export function YouTubeSearch() {
       {/* Initial State */}
       {!hasSearched && !loading && (
         <p className="text-center text-zinc-500">
-          Enter a search term to get started.
+          Click the search button to get started.
         </p>
       )}
 

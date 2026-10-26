@@ -7,6 +7,8 @@ const apiKey = process.env.YOUTUBE_API_KEY;
 export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const query = searchParams.get("q");
+    const eventType = searchParams.get("eventType");
+    const topicId = searchParams.get("topicId");
     const amountRequested = 50; //This can be changed later or changed dynamically later with the user request if needed.
 
     if (!query) {
@@ -16,12 +18,16 @@ export async function GET(request: NextRequest) {
         );
     }
 
+    let searchReq = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&videoDuration=short&maxResults=${amountRequested}`;
+
+    if (eventType) {
+      searchReq += `&eventType=${eventType}`;
+    } if (topicId) {
+      searchReq += `&topicId=${topicId}`;
+    }
+
     try {
-        const searchResponse = await fetch(
-            `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(
-                query
-            )}&type=video&videoDuration=short&maxResults=${amountRequested}&key=${apiKey}`
-        );
+        const searchResponse = await fetch(searchReq + `&key=${apiKey}`);
 
         const searchData = await searchResponse.json();
 
