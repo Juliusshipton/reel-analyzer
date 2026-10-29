@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
     const query = searchParams.get("q");
     const eventType = searchParams.get("eventType");
     const topicId = searchParams.get("topicId");
+    const category = searchParams.get("category");
     const amountRequested = 50; //This can be changed later or changed dynamically later with the user request if needed.
 
     if (!query) {
@@ -24,6 +25,8 @@ export async function GET(request: NextRequest) {
       searchReq += `&eventType=${eventType}`;
     } if (topicId) {
       searchReq += `&topicId=${topicId}`;
+    } if (category) {
+        searchReq += `&videoCategoryId=${category}`;
     }
 
     try {

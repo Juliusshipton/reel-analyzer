@@ -6,6 +6,8 @@ import VideoCard from "@/components/dashboard/VideoCard";
 import type { Video } from "@/types/video";
 import { TOPIC_IDS } from "@/lib/video/topicId";
 
+const regionCode = 'US';
+
 export function YouTubeSearch() {
   const [search, setSearch] = useState("");
   const [videos, setVideos] = useState<Video[]>([]);
@@ -13,9 +15,13 @@ export function YouTubeSearch() {
   const [error, setError] = useState("");
   const [hasSearched, setHasSearched] = useState(false);
   const [sortBy, setSortBy] = useState("default");
+
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [eventType, setEventType] = useState('');
   const [topicId, setTopicId] = useState('');
+  const [category, setCategory] = useState('');
+  const [categories, setCategories] = useState([]);
+  const [catLoading, setCatLoading] = useState(false);
 
   async function searchYouTube() {
     if (!search.trim()) return;
@@ -31,6 +37,8 @@ export function YouTubeSearch() {
       searchReq += `&eventType=${eventType}`;
     } if (topicId) {
       searchReq += `&topicId=${topicId}`;
+    } if (category) {
+      searchReq += `&category=${category}`;
     }
 
     try {
@@ -54,6 +62,26 @@ export function YouTubeSearch() {
       setLoading(false);
     }
   }
+
+  async function fetchCategories() {
+    setCatLoading(true);
+    try {
+      const response = await fetch(`api/ytcategories?regionCode=${regionCode}`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Category fetch failed");
+      }
+
+      setCategories(data);
+    } catch (error) {
+      setError(
+        error instanceof Error ? error.message : "Category fetch failed"
+      );
+    } finally {
+      setCatLoading(false);
+    }
+  };
 
   const sortedVideos = [...videos].sort((a, b) => {
     const viewsA = getStatistic(a.views);
@@ -141,7 +169,7 @@ export function YouTubeSearch() {
 
           <button
             type="button"
-            onClick={() => setShowAdvanced(!showAdvanced)}
+            onClick={() => { fetchCategories(); setShowAdvanced(!showAdvanced); }}
             className="rounded-xl bg-gray-100 w-45 py-3 text-sm font-semibold cursor-pointer border border-gray-300"
           >
             {showAdvanced ? "Hide Advanced" : "Advanced Search"}
@@ -177,6 +205,28 @@ export function YouTubeSearch() {
                     {topic.title}
                   </option>
                 ))}
+              </select>
+            </div>
+            <div className="flex">
+              <label className="w-1/4 p-2">
+                Video Category:
+              </label>
+              <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-3/4 p-2 bg-white border border-gray-200 rounded" disabled={catLoading}>
+                {catLoading ? (
+                  <>
+                    <option value="">All Categories</option>
+                    <option>Loading more categories...</option>
+                  </>
+                ) : (
+                  <>
+                    <option value="">All Categories</option>
+                    {categories.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.title}
+                      </option>
+                    ))}
+                  </>
+                )}
               </select>
             </div>
           </div>
