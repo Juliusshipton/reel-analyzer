@@ -1,12 +1,10 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import VideoCard from "@/components/dashboard/VideoCard";
 import type { Video } from "@/types/video";
 import { TOPIC_IDS } from "@/lib/video/topicId";
-
-const regionCode = 'US';
 
 export function YouTubeSearch() {
   const [search, setSearch] = useState("");
@@ -21,7 +19,18 @@ export function YouTubeSearch() {
   const [topicId, setTopicId] = useState('');
   const [category, setCategory] = useState('');
   const [categories, setCategories] = useState([]);
+  const [regionCode, setRegionCode] = useState("US");
   const [catLoading, setCatLoading] = useState(false);
+
+  useEffect(() => {
+    try {
+      const localeStr = navigator.language || 'en-US';
+      const locale = new Intl.Locale(localeStr);
+      setRegionCode(locale.region);
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
 
   async function searchYouTube() {
     if (!search.trim()) return;
