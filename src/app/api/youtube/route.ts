@@ -3,17 +3,38 @@ import type { Video, YouTubeResponse } from "@/types/video";
 // import { saveVideo } from "lib/saveVideo";
 
 const apiKey = process.env.YOUTUBE_API_KEY;
+const maxQueryLength = 500;
+
+function errorResponse(
+    message: string,
+    status: number = 500,
+    details?: string
+) {
+    return NextResponse.json(
+        {
+            error: message,
+            ...(details && { details })
+        },
+        { status }
+    );
+}
 
 export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const query = searchParams.get("q");
     const amountRequested = 50; //This can be changed later or changed dynamically later with the user request if needed.
 
-    if (!query) {
-        return NextResponse.json(
-            { error: "Search query required"},
-            { status: 400 }
-        );
+    if (!apiKey) {
+        console.error("YOUTUBE_API_KEY is not configured");
+        return errorResponse("YouTube service is not configured", 500);
+    }
+
+    if (!query?.trim()) {
+        return errorResponse("Search query cannot be empty", 400);
+    }
+
+    if (query.length > maxQueryLength) {
+        return errorResponse("Search query exceeds maximum length", 400);
     }
 
     try {
@@ -23,13 +44,35 @@ export async function GET(request: NextRequest) {
             )}&type=video&videoDuration=short&maxResults=${amountRequested}&key=${apiKey}`
         );
 
+        if (!searchResponse.ok) {
+            const errorData = await searchResponse.json().catch(() => null);
+            const reason = errorData?.error?.errors?.[0]?.reason;
+
+            console.error("YouTube API Error:", {
+                status: searchResponse.status,
+                reason,
+                message: errorData?.error?.message
+            });
+
+            if (reason === "quotaExceeded" || reason === "dailyLimitExceeded") {
+                return errorResponse("YouTube API quota exceeded", 429)
+            }
+
+            if (searchResponse.status === 400) {
+                return errorResponse("Invalid YouTube search request", 502)
+            }
+
+            if (searchResponse.status === 401 || searchResponse.status === 403) {
+                return errorResponse("YouTube API access denied", 502);
+            }
+
+            return errorResponse("Uucommon error from YouTube API", 502)
+        }
+
         const searchData = await searchResponse.json();
 
         if (!searchData.items || searchData.items.length === 0) {
-            return NextResponse.json(
-                { error: "No Videos Found"},
-                { status : 404 }
-            );
+            return errorResponse("No Videos Found", 404);
         }
 
         const allVideos: YouTubeResponse = { videos: []};
@@ -51,10 +94,7 @@ export async function GET(request: NextRequest) {
     } catch(error) {
          console.error(error);
 
-        return NextResponse.json(
-            { error: "Failed to Fetch Youtube Video"},
-            { status: 500 }
-        );
+        return errorResponse("Failed to fetch videos", 500);
     }
 }
 
