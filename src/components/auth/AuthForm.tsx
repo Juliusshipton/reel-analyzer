@@ -1,14 +1,20 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import Link from "next/link";
+import { useActionState } from "react";
 import {
   signIn,
   signInWithGoogle,
   signUp,
 } from "@/lib/auth/actions";
 
-export function AuthForm({ authError }: { authError?: string }) {
-  const [mode, setMode] = useState<"signIn" | "signUp">("signIn");
+export function AuthForm({
+  mode = "signIn",
+  authError,
+}: {
+  mode?: "signIn" | "signUp";
+  authError?: string;
+}) {
   const [signInState, signInAction, signInPending] = useActionState(
     signIn,
     undefined,
@@ -99,6 +105,17 @@ export function AuthForm({ authError }: { authError?: string }) {
         </button>
       </form>
 
+      {mode === "signIn" && (
+        <p className="mt-4 text-center text-sm">
+          <Link
+            href="/signup"
+            className="font-medium text-blue-600 hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
+          >
+            Create a new account
+          </Link>
+        </p>
+      )}
+
       <div className="my-5 flex items-center gap-3">
         <div className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" />
         <span className="text-xs text-zinc-500 dark:text-zinc-400">or</span>
@@ -116,20 +133,17 @@ export function AuthForm({ authError }: { authError?: string }) {
         </button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-zinc-500 dark:text-zinc-400">
-        {mode === "signIn" ? "Don’t have an account?" : "Already have an account?"}{" "}
-        <button
-          type="button"
-          onClick={() =>
-            setMode((currentMode) =>
-              currentMode === "signIn" ? "signUp" : "signIn",
-            )
-          }
-          className="font-medium text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-100"
-        >
-          {mode === "signIn" ? "Create one" : "Sign in"}
-        </button>
-      </p>
+      {mode === "signUp" && (
+        <p className="mt-6 text-center text-sm text-zinc-500 dark:text-zinc-400">
+          Already have an account?{" "}
+          <Link
+            href="/"
+            className="font-medium text-blue-600 hover:underline dark:text-blue-400"
+          >
+            Sign in
+          </Link>
+        </p>
+      )}
     </div>
   );
 }
