@@ -28,6 +28,9 @@ export function AuthForm({
     undefined,
   );
   const state = mode === "signIn" ? signInState : signUpState;
+  const stateError = state && "error" in state ? state.error : undefined;
+  const googleError =
+    googleState && "error" in googleState ? googleState.error : undefined;
   const pending = mode === "signIn" ? signInPending : signUpPending;
 
   return (
@@ -72,12 +75,12 @@ export function AuthForm({
           />
         )}
 
-        {(authError || state?.error || googleState?.error) && (
+        {(authError || stateError || googleError) && (
           <p
             role="alert"
             className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/50 dark:text-red-400"
           >
-            {authError ?? state?.error ?? googleState?.error}
+            {authError ?? stateError ?? googleError}
           </p>
         )}
 
