@@ -8,6 +8,7 @@ import { ReelsTable } from "@/components/reels/ReelsTable";
 import { getReels } from "@/lib/reels/queries";
 import { createClient } from "@/lib/supabase/server";
 import { YouTubeVideoImport } from "@/components/dashboard/YouTubeVideoImport"
+import { DatabaseConsole } from "@/components/dashboard/DatabaseConsole"
 
 export const metadata: Metadata = {
   title: "Dashboard · Reel Analyzer",
@@ -52,6 +53,9 @@ export default async function DashboardPage() {
 
           {/* Import user's video into database */}
           <YouTubeVideoImport />
+
+          {/* Database Console */}
+          <DatabaseConsole />
 
           {/* Saved Reels */}
           <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
