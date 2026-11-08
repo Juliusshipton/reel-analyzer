@@ -4,6 +4,7 @@ import { useState } from "react";
 import VideoCard from "@/components/dashboard/VideoCard";
 import type { Video } from "@/types/video";
 import { TOPIC_IDS } from "@/lib/video/topicId";
+import type { VideoCategory } from "@/types/category";
 
 const regionCode = 'US';
 
@@ -246,7 +247,7 @@ export function YouTubeSearch() {
                     ) : (
                         <>
                           <option value="">All Categories</option>
-                          {categories.map((cat) => (
+                          {categories.map((cat : VideoCategory) => (
                               <option key={cat.id} value={cat.id}>
                                 {cat.title}
                               </option>

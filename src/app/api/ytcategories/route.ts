@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import type { YouTubeCategory } from "@/types/category";
 
 const apiKey = process.env.YOUTUBE_API_KEY;
 
@@ -24,7 +25,7 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        const assignableItems = data.items.filter(item => item.snippet.assignable).map(item => ({
+        const assignableItems = data.items.filter((item : YouTubeCategory) => item.snippet.assignable).map((item : YouTubeCategory) => ({
           id: item.id,
           title: item.snippet.title,
         }));
@@ -34,7 +35,7 @@ export async function GET(request: NextRequest) {
     } catch (error) {
         console.error(error);
 
-        return NextReponse.json(
+        return NextResponse.json(
             { error: "Failed to fetch video categories"},
             { status: 500 }
         );
