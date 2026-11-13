@@ -1,57 +1,66 @@
+import { redirect } from "next/navigation";
+import { SurveyForm } from "@/components/onboarding/SurveyForm";
+import { createClient } from "@/lib/supabase/server";
 
-"use client";
+export default async function OnboardingPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-import { useRouter } from "next/navigation";
-import { FormEvent } from "react";
+  if (!user) {
+    redirect("/");
+  }
 
-export default function OnboardingPage() {
-  const router = useRouter();
+  const { data: survey, error } = await supabase
+    .from("user_surveys")
+    .select("user_id")
+    .eq("user_id", user.id)
+    .maybeSingle();
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  if (error) {
+    if (error.code === "PGRST205") {
+      return (
+        <main className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 py-12 dark:bg-black">
+          <section
+            role="alert"
+            className="w-full max-w-xl rounded-2xl border border-amber-300 bg-white p-8 shadow-sm dark:border-amber-800 dark:bg-zinc-950"
+          >
+            <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">
+              Survey database setup required
+            </h1>
+            <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-300">
+              The survey table is missing from your Supabase project. Run{" "}
+              <code className="rounded bg-zinc-100 px-1 py-0.5 dark:bg-zinc-800">
+                src/lib/supabase/migrations/20261113_add_user_surveys.sql
+              </code>{" "}
+              in the Supabase SQL Editor, then refresh this page.
+            </p>
+          </section>
+        </main>
+      );
+    }
 
-    // TODO: Validate survey responses
+    throw new Error(`Unable to load onboarding survey: ${error.message}`);
+  }
 
-    // TODO: Save survey responses to Supabase
-
-    // TODO: Redirect to dashboard after successful submission
-    // router.push("/dashboard");
-  };
+  if (survey) {
+    redirect("/dashboard");
+  }
 
   return (
-    <main className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
-        {/* Header */}
+    <main className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 py-12 dark:bg-black">
+      <div className="w-full max-w-xl rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
             Tell us about your content
           </h1>
-
-          <p className="mt-2 text-sm text-gray-500">
-            Help us personalize your experience by telling us
-            a little about the content you create.
+          <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+            Help us personalize your experience by telling us a little about
+            the content you want to make.
           </p>
         </div>
-
-        {/* Survey Form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
-
-          {/* Future Survey Questions */}
-          <div
-            id="survey-questions"
-            className="space-y-5"
-          >
-            {/* Add questions and response fields here */}
-          </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            className="w-full rounded-md bg-zinc-900 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-zinc-800"
-          >
-            Submit
-          </button>
-        </form>
+        <SurveyForm />
       </div>
     </main>
   );
