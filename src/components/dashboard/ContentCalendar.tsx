@@ -10,11 +10,11 @@ export function ContentCalendar() {
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
     // TODO: implement persistent data storage
     const [calendarData, setCalendarData] = useState<CalendarEvent[]>([
-        { id: 1, eventDate: new Date("2026-11-21T14:00:00"), title: "Example Data 1", description: "Example Description" },
-        { id: 2, eventDate: new Date("2026-11-30T20:00:00"), title: "Example Data 2", description: "Example Description" },
-        { id: 3, eventDate: new Date("2026-11-21T08:00:00"), title: "Example Data 3", description: "Example Description" },
+        { id: "1", eventDate: new Date("2026-11-21T14:00:00"), title: "Example Data 1", description: "Example Description" },
+        { id: "2", eventDate: new Date("2026-11-30T20:00:00"), title: "Example Data 2", description: "Example Description" },
+        { id: "3", eventDate: new Date("2026-11-21T08:00:00"), title: "Example Data 3", description: "Example Description" },
     ]); 
-    const [selectedEvent, setSelectedEvent] = useState<CalendarEvent>({ id: -1, eventDate: new Date(), title: "", description: "" });
+    const [selectedEvent, setSelectedEvent] = useState<CalendarEvent>({ id: "-1", eventDate: new Date(), title: "", description: "" });
     const [openInfo, setOpenInfo] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
     const [openDelete, setOpenDelete] = useState(false);
@@ -86,15 +86,30 @@ export function ContentCalendar() {
     }
 
     const addEvent = (formData: FormData) => {
-        // addEvent(formData); // TODO: create add function
+        const title = String(formData.get("title") ?? "");
+        const description = String(formData.get("description") ?? "");
+        const date = String(formData.get("date") ?? "");
+        const time = String(formData.get("time") ?? "");
+
+        const newEvent: CalendarEvent = {
+            id: crypto.randomUUID(),
+            title,
+            description,
+            eventDate: new Date(`${date}T${time}`)
+        };
+
+        setCalendarData(prev => [...prev, newEvent]);
         setOpenAdd(false);
-    } 
+    }
 
     const deleteEvent = () => {
+        setCalendarData((prev) =>
+            prev.filter((event) => event.id !== selectedEvent.id)
+        );
+        
         setOpenDelete(false); 
         setOpenEdit(false); 
         setOpenInfo(false);
-        // deleteEvent(); // TODO: create delete function
     }
 
     return (
