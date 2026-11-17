@@ -6,6 +6,8 @@ import { VideoDescriber } from "@/components/dashboard/VideoDescriber";
 import { YouTubeSearch } from "@/components/dashboard/YouTube";
 import { ReelsTable } from "@/components/reels/ReelsTable";
 import { ContentCalendar } from "@/components/dashboard/ContentCalendar";
+import { CommitmentReminder } from "@/components/reminders/CommitmentReminder";
+import { getReminderStatus } from "@/lib/reminders/queries";
 import { getReels } from "@/lib/reels/queries";
 import { createClient } from "@/lib/supabase/server";
 import { YouTubeVideoImport } from "@/components/dashboard/YouTubeVideoImport";
@@ -30,6 +32,9 @@ export default async function DashboardPage() {
   // Fetch saved reels from database
   const reels = await getReels();
 
+  // Commitment-day reminder (task #130)
+  const reminderStatus = await getReminderStatus();
+
   return (
     <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-black">
 
@@ -48,6 +53,9 @@ export default async function DashboardPage() {
         </header>
 
         <div className="space-y-12">
+
+          {/* Commitment-day reminder (task #130) */}
+          {reminderStatus && <CommitmentReminder status={reminderStatus} />}
 
           {/* Interactive YouTube Search */}
           <YouTubeSearch />
