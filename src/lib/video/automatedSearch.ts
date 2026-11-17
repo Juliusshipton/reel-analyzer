@@ -1,4 +1,5 @@
 import type { YouTubeResponse } from "@/types/video";
+import { createClient } from "@/lib/supabase/server";
 
 export type AutomatedSearchFrequency = "daily" | "weekly" | "monthly";
 
@@ -65,6 +66,14 @@ export async function runAutomatedSearch(
     return null;
   }
 
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error("Unauthorized");
+  }
+
   const url = new URL("/api/youtube", appOrigin);
   url.searchParams.set("q", search.query);
 
@@ -79,6 +88,27 @@ export async function runAutomatedSearch(
 
   if (!response.ok) {
     throw new Error(data.error ?? `Automated search failed: ${response.status}`);
+  }
+
+  if (data.videos.length > 0) {
+    const { error } = await supabase.from("automated_search_results").insert(
+      data.videos.map((video) => ({
+        user_id: user.id,
+        search_category: search.category,
+        search_query: search.query,
+        video_id: video.id,
+        title: video.title,
+        channel: video.channel,
+        thumbnail: video.thumbnail,
+        views: video.views,
+        likes: video.likes,
+        comments: video.comments,
+      })),
+    );
+
+    if (error) {
+      throw new Error(`Failed to save automated search results: ${error.message}`);
+    }
   }
 
   return data;
