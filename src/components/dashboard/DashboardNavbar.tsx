@@ -5,7 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const navigationItems = [
-  { label: "Home", href: "/dashboard" }
+  { label: "Home", href: "/dashboard" },
+  { label: "YouTube Video Search", href: "/dashboard/youtube-search"}
 ];
 
 export default function DashboardNavbar() {
