@@ -5,10 +5,11 @@ import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { VideoDescriber } from "@/components/dashboard/VideoDescriber";
 import { YouTubeSearch } from "@/components/dashboard/YouTube";
 import { ReelsTable } from "@/components/reels/ReelsTable";
+import { ContentCalendar } from "@/components/dashboard/ContentCalendar";
 import { getReels } from "@/lib/reels/queries";
 import { createClient } from "@/lib/supabase/server";
-import { YouTubeVideoImport } from "@/components/dashboard/YouTubeVideoImport"
-import { DatabaseConsole } from "@/components/dashboard/DatabaseConsole"
+import { YouTubeVideoImport } from "@/components/dashboard/YouTubeVideoImport";
+import { DatabaseConsole } from "@/components/dashboard/DatabaseConsole";
 
 export const metadata: Metadata = {
   title: "Dashboard · Reel Analyzer",
@@ -74,6 +75,8 @@ export default async function DashboardPage() {
 
             <VideoDescriber />
           </section>
+
+          <ContentCalendar />
 
         </div>
       </main>
