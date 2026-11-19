@@ -7,7 +7,8 @@ import { usePathname } from "next/navigation";
 const navigationItems = [
   { label: "Home", href: "/dashboard" },
   { label: "YouTube Video Search", href: "/dashboard/youtube-search"},
-  { label: "Video Import", href: "/dashboard/video-import"}
+  { label: "Video Import", href: "/dashboard/video-import"},
+  { label: "Calendar", href: "/dashboard/calendar"}
 ];
 
 export default function DashboardNavbar() {
