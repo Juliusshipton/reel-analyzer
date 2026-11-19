@@ -8,7 +8,8 @@ const navigationItems = [
   { label: "Home", href: "/dashboard" },
   { label: "YouTube Video Search", href: "/dashboard/youtube-search"},
   { label: "Video Import", href: "/dashboard/video-import"},
-  { label: "Calendar", href: "/dashboard/calendar"}
+  { label: "Calendar", href: "/dashboard/calendar"},
+  { label: "Data Assistant", href: "/dashboard/data-assistant"}
 ];
 
 export default function DashboardNavbar() {
