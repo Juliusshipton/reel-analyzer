@@ -1,24 +1,22 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import type { CalendarEvent } from '@/types/event';
 import { EVENT_FIELDS } from "@/lib/calendar/fields";
+import { addCalendarEvent, deleteCalendarEvent, updateCalendarEvent } from "@/lib/calendar/actions";
+import { buildCalendarIcs, icsFilename } from "@/lib/calendar/ics";
 
-export function ContentCalendar() {
+export function ContentCalendar({ events }: { events: CalendarEvent[] }) {
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-    // TODO: implement persistent data storage
-    const [calendarData, setCalendarData] = useState<CalendarEvent[]>([
-        { id: 1, eventDate: new Date("2026-11-21T14:00:00"), title: "Example Data 1", description: "Example Description" },
-        { id: 2, eventDate: new Date("2026-11-30T20:00:00"), title: "Example Data 2", description: "Example Description" },
-        { id: 3, eventDate: new Date("2026-11-21T08:00:00"), title: "Example Data 3", description: "Example Description" },
-    ]); 
-    const [selectedEvent, setSelectedEvent] = useState<CalendarEvent>({ id: -1, eventDate: new Date(), title: "", description: "" });
+    const [selectedEvent, setSelectedEvent] = useState<CalendarEvent>({ id: "-1", eventDate: new Date(), title: "", description: "" });
     const [openInfo, setOpenInfo] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
     const [openDelete, setOpenDelete] = useState(false);
     const [openAdd, setOpenAdd] = useState(false);
+    const [isPending, startTransition] = useTransition();
+    const [error, setError] = useState<string | null>(null);
 
     const today = new Date();
 
@@ -61,7 +59,7 @@ export function ContentCalendar() {
     };
 
     const getEvents = (date: Date) => {
-        return calendarData
+        return events
         .filter( (data) => data.eventDate.toDateString() === date.toDateString() )
         .toSorted( (a, b) => a.eventDate.toTimeString().localeCompare(b.eventDate.toTimeString()) );
     }
@@ -72,39 +70,107 @@ export function ContentCalendar() {
         else return "text";
     }
 
+    // Local date as YYYY-MM-DD. toISOString() would convert to UTC first, which
+    // pushes an evening event to the next day in the edit form.
+    const toDateInputValue = (date: Date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    }
+
     const getValue = (field: string) => {
         if (field === "title") return selectedEvent.title;
-        else if (field === "date") return selectedEvent.eventDate.toISOString().split('T')[0];
+        else if (field === "date") return toDateInputValue(selectedEvent.eventDate);
         else if (field === "time") return selectedEvent.eventDate.toTimeString().slice(0, 5);
         else if (field === "description") return selectedEvent.description;
         else return "";
     }
 
-    const editEvent = (formData: FormData) => {
-        // editEvent(formData); // TODO: create edit function
-        setOpenEdit(false);
+    // Reads the form into the shape the server actions take. The Date is built
+    // here, in the browser, because only the browser knows the user's time zone.
+    const readForm = (formData: FormData) => {
+        const date = String(formData.get("date") ?? "");
+        const time = String(formData.get("time") ?? "");
+
+        return {
+            title: String(formData.get("title") ?? ""),
+            description: String(formData.get("description") ?? ""),
+            eventDate: new Date(`${date}T${time}`).toISOString(),
+        };
+    }
+
+    // Server actions reject on failure, so every call goes through here: the
+    // dialog only closes once the write actually landed.
+    const runAction = (action: () => Promise<void>, onDone: () => void) => {
+        setError(null);
+        startTransition(async () => {
+            try {
+                await action();
+                onDone();
+            } catch (e) {
+                setError(e instanceof Error ? e.message : "Something went wrong.");
+            }
+        });
     }
 
     const addEvent = (formData: FormData) => {
-        // addEvent(formData); // TODO: create add function
-        setOpenAdd(false);
-    } 
+        runAction(
+            () => addCalendarEvent(readForm(formData)),
+            () => setOpenAdd(false),
+        );
+    }
+
+    const editEvent = (formData: FormData) => {
+        runAction(
+            () => updateCalendarEvent(selectedEvent.id, readForm(formData)),
+            () => { setOpenEdit(false); setOpenInfo(false); },
+        );
+    }
 
     const deleteEvent = () => {
-        setOpenDelete(false); 
-        setOpenEdit(false); 
-        setOpenInfo(false);
-        // deleteEvent(); // TODO: create delete function
+        runAction(
+            () => deleteCalendarEvent(selectedEvent.id),
+            () => { setOpenDelete(false); setOpenEdit(false); setOpenInfo(false); },
+        );
+    }
+
+    // #131 Export Calendar — hands the browser an .ics file to download.
+    const exportCalendar = () => {
+        const blob = new Blob([buildCalendarIcs(events)], {
+            type: "text/calendar;charset=utf-8",
+        });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = icsFilename();
+        link.click();
+        URL.revokeObjectURL(url);
     }
 
     return (
         <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
 
-            <div className="mb-8">
+            <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
                 <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
                     Content Creation Calendar
                 </h2>
+                <button
+                    type="button"
+                    onClick={exportCalendar}
+                    disabled={events.length === 0}
+                    title={events.length === 0 ? "No events to export" : "Download as .ics"}
+                    className="h-9 rounded-md border border-zinc-300 px-3 text-sm font-medium text-zinc-900 transition hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                >
+                    Export Calendar
+                </button>
             </div>
+
+            {error && (
+                <div className="mb-6 rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300">
+                    {error}
+                </div>
+            )}
 
             <div className="flex flex-col gap-3 sm:flex-row">
                 <Calendar 
@@ -215,9 +281,10 @@ export function ContentCalendar() {
                                         </button>
                                         <button
                                             type="submit"
-                                            className="h-9 rounded-md bg-zinc-900 px-3 text-sm font-medium text-white dark:bg-zinc-50 dark:text-zinc-900"
+                                            disabled={isPending}
+                                            className="h-9 rounded-md bg-zinc-900 px-3 text-sm font-medium text-white disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-900"
                                         >
-                                            Save
+                                            {isPending ? "Saving…" : "Save"}
                                         </button>
                                     </div>
                                 </div>
@@ -246,9 +313,10 @@ export function ContentCalendar() {
                                     <button
                                         type="button"
                                         onClick={() => deleteEvent()}
-                                        className="h-9 rounded-md bg-zinc-900 px-3 text-sm font-medium text-white dark:bg-zinc-50 dark:text-zinc-900"
+                                        disabled={isPending}
+                                        className="h-9 rounded-md bg-zinc-900 px-3 text-sm font-medium text-white disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-900"
                                     >
-                                        Yes
+                                        {isPending ? "Deleting…" : "Yes"}
                                     </button>
                                 </div>
                             </div>
