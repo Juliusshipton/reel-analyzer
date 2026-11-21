@@ -7,6 +7,7 @@ import { YouTubeSearch } from "@/components/dashboard/YouTube";
 import { ReelsTable } from "@/components/reels/ReelsTable";
 import { ContentCalendar } from "@/components/dashboard/ContentCalendar";
 import { getReels } from "@/lib/reels/queries";
+import { getCalendarEvents } from "@/lib/calendar/queries";
 import { createClient } from "@/lib/supabase/server";
 import { YouTubeVideoImport } from "@/components/dashboard/YouTubeVideoImport";
 import { DatabaseConsole } from "@/components/dashboard/DatabaseConsole";
@@ -29,6 +30,9 @@ export default async function DashboardPage() {
 
   // Fetch saved reels from database
   const reels = await getReels();
+
+  // Fetch the user's scheduled content events
+  const calendarEvents = await getCalendarEvents();
 
   return (
     <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-black">
@@ -76,7 +80,7 @@ export default async function DashboardPage() {
             <VideoDescriber />
           </section>
 
-          <ContentCalendar />
+          <ContentCalendar events={calendarEvents} />
 
         </div>
       </main>
