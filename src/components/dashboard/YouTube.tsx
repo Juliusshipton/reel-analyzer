@@ -176,7 +176,7 @@ export function YouTubeSearch() {
             <button
                 type="button"
                 onClick={() => { fetchCategories(); setShowAdvanced(!showAdvanced); }}
-                className="rounded-xl bg-gray-100 w-45 py-3 text-sm font-semibold cursor-pointer border border-gray-300"
+                className="rounded-xl bg-gray-100 min-w-45 py-3 text-sm font-semibold cursor-pointer border border-gray-300"
             >
               {showAdvanced ? "Hide Advanced" : "Advanced Search"}
             </button>
