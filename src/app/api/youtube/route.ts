@@ -22,6 +22,11 @@ function errorResponse(
 export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const query = searchParams.get("q");
+    const eventType = searchParams.get("eventType");
+    const videoDuration = searchParams.get("videoDuration");
+    const videoDefinition = searchParams.get("videoDefinition");
+    const topicId = searchParams.get("topicId");
+    const category = searchParams.get("category");
     const amountRequested = 50; //This can be changed later or changed dynamically later with the user request if needed.
 
     if (!apiKey) {
@@ -37,12 +42,40 @@ export async function GET(request: NextRequest) {
         return errorResponse("Search query exceeds maximum length", 400);
     }
 
-    try {
-        const searchResponse = await fetch(
-            `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(
-                query
-            )}&type=video&videoDuration=short&maxResults=${amountRequested}&key=${apiKey}`
+    //Values the YouTube Data API accepts for these two filters.
+    const allowedDurations = ["any", "short", "medium", "long"];
+    const allowedDefinitions = ["any", "high", "standard"];
+
+    if (videoDuration && !allowedDurations.includes(videoDuration)) {
+        return NextResponse.json(
+            { error: "Invalid videoDuration. Use any, short, medium, or long."},
+            { status: 400 }
         );
+    }
+
+    if (videoDefinition && !allowedDefinitions.includes(videoDefinition)) {
+        return NextResponse.json(
+            { error: "Invalid videoDefinition. Use any, high, or standard."},
+            { status: 400 }
+        );
+    }
+
+    let searchReq = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=${amountRequested}`;
+
+    if (videoDuration) {
+        searchReq += `&videoDuration=${videoDuration}`;
+    } if (videoDefinition) {
+        searchReq += `&videoDefinition=${videoDefinition}`;
+    } if (eventType) {
+        searchReq += `&eventType=${eventType}`;
+    } if (topicId) {
+        searchReq += `&topicId=${topicId}`;
+    } if (category) {
+        searchReq += `&videoCategoryId=${category}`;
+    }
+
+    try {
+        const searchResponse = await fetch(searchReq + `&key=${apiKey}`);
 
         if (!searchResponse.ok) {
             const errorData = await searchResponse.json().catch(() => null);
@@ -89,10 +122,10 @@ export async function GET(request: NextRequest) {
         }
 
         return NextResponse.json(allVideos);
-        
+
 
     } catch(error) {
-         console.error(error);
+        console.error(error);
 
         return errorResponse("Failed to fetch videos", 500);
     }
@@ -119,5 +152,5 @@ async function formatVideoData(id: string) {
         comments: video.statistics?.commentCount ?? null
     };
 
-        return videoFormatted;
+    return videoFormatted;
 }

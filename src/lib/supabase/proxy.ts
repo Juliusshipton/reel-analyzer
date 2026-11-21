@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const SIGN_IN_ROUTE = "/";
+const PUBLIC_ROUTES = ["/", "/signup", "/auth/callback"];
 const AUTHENTICATED_HOME = "/dashboard";
 
 /**
@@ -36,8 +36,10 @@ export async function updateSession(request: NextRequest) {
   );
 
   // Must run before any response is returned so refreshed tokens are persisted.
-  const { data } = await supabase.auth.getClaims();
-  const isAuthenticated = Boolean(data?.claims);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const isAuthenticated = Boolean(user);
   const { pathname } = request.nextUrl;
 
   // API routes authenticate themselves and return 401 rather than redirecting.
@@ -45,11 +47,17 @@ export async function updateSession(request: NextRequest) {
     return response;
   }
 
-  if (!isAuthenticated && pathname !== SIGN_IN_ROUTE) {
-    return redirectWithCookies(request, response, SIGN_IN_ROUTE);
+  if (
+    !isAuthenticated &&
+    !PUBLIC_ROUTES.some(
+      (publicRoute) =>
+        pathname === publicRoute || pathname.startsWith(`${publicRoute}/`),
+    )
+  ) {
+    return redirectWithCookies(request, response, "/");
   }
 
-  if (isAuthenticated && pathname === SIGN_IN_ROUTE) {
+  if (isAuthenticated && (pathname === "/" || pathname === "/signup")) {
     return redirectWithCookies(request, response, AUTHENTICATED_HOME);
   }
 
