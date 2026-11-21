@@ -1,5 +1,22 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Supabase authentication setup
+
+Set these environment variables before starting the application:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<publishable-key>
+```
+
+In the Supabase dashboard:
+
+1. Enable email/password authentication under **Authentication → Sign In / Providers**.
+2. To enable Google sign-in, enable the Google provider and add its OAuth client ID and secret. In the Google OAuth client, set the authorized redirect URI to `https://<project-ref>.supabase.co/auth/v1/callback`.
+3. Add your app URLs under **Authentication → URL Configuration**. Set the Site URL (for local development, `http://localhost:3000`) and add each app callback URL to the redirect URL allow list, including `http://localhost:3000/auth/callback` and your production callback URL.
+
+With email confirmation enabled, account creation sends a confirmation link and signs the user in after confirmation. Users who can sign in immediately are sent directly to the dashboard.
+
 ## Getting Started
 
 First, run the development server:
