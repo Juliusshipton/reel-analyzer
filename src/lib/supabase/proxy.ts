@@ -36,8 +36,10 @@ export async function updateSession(request: NextRequest) {
   );
 
   // Must run before any response is returned so refreshed tokens are persisted.
-  const { data } = await supabase.auth.getClaims();
-  const isAuthenticated = Boolean(data?.claims);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const isAuthenticated = Boolean(user);
   const { pathname } = request.nextUrl;
 
   // API routes authenticate themselves and return 401 rather than redirecting.

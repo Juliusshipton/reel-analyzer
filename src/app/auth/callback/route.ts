@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
-      return NextResponse.redirect(new URL("/dashboard", origin));
+      return NextResponse.redirect(new URL("/onboarding", origin));
     }
 
     console.error("Supabase OAuth callback failed:", error);
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!error) {
-      return NextResponse.redirect(new URL("/dashboard", origin));
+      return NextResponse.redirect(new URL("/onboarding", origin));
     }
 
     console.error("Supabase email confirmation failed:", error);

@@ -15,7 +15,11 @@ In the Supabase dashboard:
 2. To enable Google sign-in, enable the Google provider and add its OAuth client ID and secret. In the Google OAuth client, set the authorized redirect URI to `https://<project-ref>.supabase.co/auth/v1/callback`.
 3. Add your app URLs under **Authentication → URL Configuration**. Set the Site URL (for local development, `http://localhost:3000`) and add each app callback URL to the redirect URL allow list, including `http://localhost:3000/auth/callback` and your production callback URL.
 
-With email confirmation enabled, account creation sends a confirmation link and signs the user in after confirmation. Users who can sign in immediately are sent directly to the dashboard.
+With email confirmation enabled, account creation sends a confirmation link and signs the user in after confirmation. New users complete the onboarding survey before reaching the dashboard; returning users who have already submitted it continue to the dashboard.
+
+### Onboarding survey database setup
+
+The full database schema in `src/lib/supabase/schema.sql` includes the onboarding survey table and its row-level security policy. For an existing Supabase project, run `src/lib/supabase/migrations/20261113_add_user_surveys.sql` in the Supabase SQL Editor to add survey storage.
 
 ## Getting Started
 
