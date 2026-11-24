@@ -2,7 +2,7 @@ import { signOut } from "@/lib/auth/actions";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-type DashboardTab = "dashboard" | "automated-searches";
+type DashboardTab = "dashboard" | "automated-searches" | "account-settings";
 
 export function DashboardHeader({
   email,
@@ -30,6 +30,12 @@ export function DashboardHeader({
               active={activeTab === "automated-searches"}
             >
               Automated Search
+            </DashboardNavLink>
+            <DashboardNavLink 
+              href="/dashboard/account-settings"
+              active={activeTab === "account-settings"}
+            >
+              Account Settings
             </DashboardNavLink>
           </nav>
         </div>
