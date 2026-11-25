@@ -10,7 +10,8 @@ const navigationItems = [
   { label: "Video Import", href: "/dashboard/video-import"},
   { label: "Calendar", href: "/dashboard/calendar"},
   { label: "Data Assistant", href: "/dashboard/data-assistant"},
-  { label: "Saved Videos", href: "/dashboard/saved-videos"}
+  { label: "Saved Videos", href: "/dashboard/saved-videos"},
+  { label: "Automated Search", href: "/dashboard/automated-searches" }
 ];
 
 export default function DashboardNavbar() {

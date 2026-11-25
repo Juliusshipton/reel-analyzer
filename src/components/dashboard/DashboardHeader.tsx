@@ -1,10 +1,10 @@
 import { signOut } from "@/lib/auth/actions";
 import Link from "next/link";
 
-export function DashboardHeader({ email } : { email?: string }) {
+export function DashboardHeader({ email }: { email?: string }) {
   return (
     <header className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <span className="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
           
         </span>
