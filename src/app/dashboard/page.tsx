@@ -23,9 +23,6 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-black">
-
-      <DashboardHeader email={user.email} />
-
       <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-10">
         <div className="space-y-10">
 
@@ -151,7 +148,7 @@ export default async function DashboardPage() {
           <footer className="border-t border-zinc-200 pt-6 text-center text-sm text-zinc-500 dark:border-zinc-800">
             AI Marketing Agent — Senior Project
           </footer>
-
+          <DashboardHeader email={user.email} />
         </div>
       </main>
     </div>
