@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AutomatedSearchSettings } from "@/components/dashboard/AutomatedSearchSettings";
-import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { getAutomatedSearches } from "@/lib/video/automatedSearch";
 import { createClient } from "@/lib/supabase/server";
 
@@ -23,7 +22,6 @@ export default async function AutomatedSearchesPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-black">
-      <DashboardHeader email={user.email} activeTab="automated-searches" />
       <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-10">
         <header className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
