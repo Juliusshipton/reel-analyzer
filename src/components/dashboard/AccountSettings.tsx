@@ -15,7 +15,7 @@ export function AccountSettings({ userEmail, userName } : { userEmail?: string, 
     };
 
     function forgotPassword() {
-        // TODO: implement (Task 171)
+        // TODO: implement (Task 168)
     }
 
     return (
@@ -45,8 +45,8 @@ export function AccountSettings({ userEmail, userName } : { userEmail?: string, 
                             <div className="grid grid-cols-[150px_1fr]">
                                 <span className="py-2 text-sm font-bold text-zinc-700 dark:text-zinc-300">Name</span>
                                 <input 
-                                    id="name"
-                                    name="name"
+                                    id="username"
+                                    name="username"
                                     className="py-2 w-full rounded-md border border-zinc-300 bg-white px-3 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50 dark:focus:border-zinc-300 dark:focus:ring-zinc-300"
                                     defaultValue={userName}
                                 />
@@ -115,7 +115,7 @@ export function AccountSettings({ userEmail, userName } : { userEmail?: string, 
                                 id="oldPassword"
                                 label="Current password"
                                 type="password"
-                                autoComplete="old-password"
+                                autoComplete="current-password"
                             />
                             <Field 
                                 id="password"
@@ -130,7 +130,6 @@ export function AccountSettings({ userEmail, userName } : { userEmail?: string, 
                                 autoComplete="new-password"
                             />
                             <div className="flex items-center justify-between w-full pt-2">
-                                {/* TODO: implement href in following link (Task 171) */}
                                 <button 
                                     type="button"
                                     onClick={forgotPassword}
